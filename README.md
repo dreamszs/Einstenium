@@ -13,7 +13,7 @@
     <img src="https://img.shields.io/github/license/dreamszs/Einstenium?style=for-the-badge&color=red" alt="License">
   </a>
   <br>
-  <img src="https://img.shields.io/badge/External-True-blue?style=for-the-badge&logo=windows" alt="v1.1.1">
+  <img src="https://img.shields.io/badge/External-v1.1.1-blue?style=for-the-badge&logo=windows" alt="v1.1.1">
 </p>
 
 <h1 align="center">Einstenium</h1>
