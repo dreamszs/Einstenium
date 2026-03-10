@@ -11,6 +11,7 @@
   </a>
   <br>
   <img src="https://img.shields.io/badge/External-v1.1.1-blue?style=for-the-badge&logo=windows" alt="v1.1.1">
+  <img src="https://img.shields.io/github/commit-activity/t/dreamszs/Einstenium?style=for-the-badge&logo=github&color=teal" alt="Commit activity">
 </p>
 
 <h1 align="center">Einstenium</h1>
