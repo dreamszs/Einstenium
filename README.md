@@ -9,9 +9,6 @@
   <a href="https://github.com/dreamszs/Einstenium/commits/main">
     <img src="https://img.shields.io/github/last-commit/dreamszs/Einstenium?style=for-the-badge&logo=github&color=purple" alt="Last Commit">
   </a>
-  <a href="https://github.com/dreamszs/Einstenium/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/dreamszs/Einstenium?style=for-the-badge&color=red" alt="License">
-  </a>
   <br>
   <img src="https://img.shields.io/badge/External-v1.1.1-blue?style=for-the-badge&logo=windows" alt="v1.1.1">
 </p>
