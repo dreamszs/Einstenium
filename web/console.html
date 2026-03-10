@@ -105,7 +105,6 @@
           window.chrome.webview.postMessage(JSON.stringify({ action: 'consoleClose' }));
         }
       });
-      /* Drag console from header (WebView2 consumes hit-test) */
       var consoleHeader = document.querySelector('.console-header');
       if (consoleHeader) {
         consoleHeader.addEventListener('mousedown', function(e) {
