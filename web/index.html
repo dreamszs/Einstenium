@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#000000">
+  <meta name="color-scheme" content="dark">
+  <title>Einstenium-v1.1.1</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; padding: 0; font-family: 'Outfit', 'Segoe UI', system-ui, sans-serif; }
+    body {
+      background: #000000;
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      animation: bodyFadeIn 0.35s ease-out;
+    }
+    @keyframes bodyFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .title-bar {
+      flex-shrink: 0;
+      height: 36px;
+      min-height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #000000;
+      border-bottom: none;
+      -webkit-app-region: drag;
+      user-select: none;
+    }
+    .title-bar .title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-left: 16px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #ffffff;
+      letter-spacing: 0.02em;
+    }
+    .title-bar .title svg { opacity: 0.9; }
+    .title-bar .title-version {
+      font-weight: 500;
+      color: #888888;
+      font-size: 12px;
+      margin-left: 4px;
+    }
+    .title-bar .win-btns {
+      display: flex;
+      -webkit-app-region: no-drag;
+      height: 100%;
+    }
+    .title-bar .win-btns button {
+      width: 48px;
+      height: 100%;
+      border: none;
+      background: transparent;
+      color: #b0b0b0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
+    }
+    .title-bar .win-btns button:hover { background: #1a1a1a; color: #ffffff; }
+    .title-bar .win-btns button.close:hover { background: #c00; color: #fff; }
+    .title-bar .win-btns button svg { width: 12px; height: 12px; }
+    .main-row {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      overflow: hidden;
+    }
+    .content-col {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .toolbar {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      background: #0a0a0a;
+      border-bottom: 1px solid #2a2a2a;
+    }
+    .toolbar .btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      border: 1px solid #333333;
+      background: #1a1a1a;
+      color: #ffffff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.25s ease, color 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+    }
+    .toolbar .btn:hover { background: #2a2a2a; color: #ffffff; border-color: #555; transform: translateY(-1px); }
+    .toolbar .btn:active { transform: translateY(0); }
+    .toolbar .btn.primary {
+      background: #ffffff;
+      color: #000000;
+      border-color: #ffffff;
+    }
+    .toolbar .btn.primary:hover { background: #e0e0e0; color: #000000; border-color: #e0e0e0; transform: translateY(-1px); }
+    .toolbar .btn.primary:active { transform: translateY(0); }
+    .toolbar .btn svg { width: 18px; height: 18px; }
+    .toolbar .sep { width: 1px; height: 22px; background: #333333; margin: 0 6px; border-radius: 1px; }
+    .editor-wrap {
+      flex: 1;
+      min-height: 0;
+      padding: 12px 14px 14px;
+    }
+    #editor {
+      width: 100%;
+      height: 100%;
+      min-height: 180px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid #2a2a2a;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
+    }
+    /* Show hover tooltip below the line instead of above */
+    .monaco-editor .monaco-hover {
+      transform: translateY(28px);
+    }
+    .scripts-panel {
+      flex-shrink: 0;
+      width: 200px;
+      background: #000000;
+      border-right: 1px solid #2a2a2a;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .scripts-panel .panel-header {
+      flex-shrink: 0;
+      padding: 12px 14px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #b0b0b0;
+      border-bottom: 1px solid #2a2a2a;
+    }
+    .scripts-panel .list {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .scripts-panel .scripts-footer {
+      flex-shrink: 0;
+      padding: 10px;
+      padding-top: 8px;
+      margin-top: auto;
+    }
+    .scripts-panel .scripts-footer .btn-updates {
+      margin: 0;
+      width: 100%;
+    }
+    .scripts-panel .list::-webkit-scrollbar { width: 6px; }
+    .scripts-panel .list::-webkit-scrollbar-track { background: transparent; }
+    .scripts-panel .list::-webkit-scrollbar-thumb { background: #333333; border-radius: 3px; }
+    .script-preset-btn {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid #2a2a2a;
+      border-radius: 10px;
+      background: #1a1a1a;
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      text-align: left;
+      transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+    }
+    .script-preset-btn:hover {
+      background: #2a2a2a;
+      border-color: #444444;
+      transform: translateX(2px);
+    }
+    .script-preset-btn:active { transform: translateX(2px) scale(0.98); }
+    .btn-updates {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid #2a2a2a;
+      border-radius: 10px;
+      background: #1a1a1a;
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      text-align: left;
+      transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+    }
+    .btn-updates:hover { background: #2a2a2a; border-color: #444444; transform: translateX(2px); }
+    .updates-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .updates-modal.visible { display: flex; }
+    .updates-content {
+      background: #0a0a0a;
+      border: 1px solid #2a2a2a;
+      border-radius: 12px;
+      max-width: 420px;
+      width: 100%;
+      max-height: 70vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .updates-content .header {
+      padding: 14px 16px;
+      border-bottom: 1px solid #2a2a2a;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 600;
+      color: #ffffff;
+    }
+    .updates-content .header .close {
+      width: 36px;
+      height: 36px;
+      border: 1px solid #333333;
+      background: #1a1a1a;
+      color: #ffffff;
+      cursor: pointer;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      flex-shrink: 0;
+      transition: background 0.2s ease, border-color 0.2s ease;
+    }
+    .updates-content .header .close:hover { background: #2a2a2a; border-color: #555555; }
+    .updates-content .header .close svg { width: 14px; height: 14px; }
+    .updates-content .body {
+      padding: 16px;
+      overflow-y: auto;
+      font-size: 12px;
+      line-height: 1.6;
+      color: #b0b0b0;
+      white-space: pre-wrap;
+    }
+    .editor-tabs {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      padding: 0 14px;
+      background: #0a0a0a;
+      border-bottom: 1px solid #2a2a2a;
+      min-height: 36px;
+    }
+    .editor-tab {
+      padding: 8px 8px 8px 14px;
+      font-size: 12px;
+      color: #888888;
+      background: transparent;
+      border: none;
+      border-radius: 8px 8px 0 0;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.2s ease, color 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .editor-tab:hover { color: #ffffff; background: #1a1a1a; }
+    .editor-tab.active { color: #ffffff; background: #000000; }
+    .editor-tab-close {
+      width: 18px;
+      height: 18px;
+      padding: 0;
+      border: none;
+      border-radius: 4px;
+      background: transparent;
+      color: inherit;
+      opacity: 0.7;
+      font-size: 14px;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s ease, opacity 0.2s ease;
+    }
+    .editor-tab:hover .editor-tab-close { opacity: 1; }
+    .editor-tab-close:hover { background: rgba(255,255,255,0.15); }
+    .editor-tab-add {
+      width: 28px;
+      height: 28px;
+      padding: 0;
+      margin-left: 4px;
+      border: 1px solid #333333;
+      border-radius: 8px;
+      background: #1a1a1a;
+      color: #b0b0b0;
+      font-size: 16px;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+    .editor-tab-add:hover { background: #2a2a2a; color: #ffffff; }
+    .injected-panel {
+      flex-shrink: 0;
+      width: 260px;
+      background: #000000;
+      border-left: 1px solid #2a2a2a;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .injected-panel .panel-header {
+      flex-shrink: 0;
+      padding: 12px 14px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #b0b0b0;
+      border-bottom: 1px solid #2a2a2a;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .injected-panel .panel-header .btn-refresh {
+      width: 28px;
+      height: 28px;
+      margin-left: auto;
+      border: none;
+      border-radius: 8px;
+      background: #1a1a1a;
+      color: #ffffff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+    }
+    .injected-panel .panel-header .btn-refresh:hover {
+      background: #2a2a2a;
+      color: #ffffff;
+      transform: rotate(-72deg);
+    }
+    .injected-panel .panel-header .btn-refresh:active { transform: rotate(-72deg) scale(0.95); }
+    .injected-panel .panel-header .btn-refresh svg { width: 14px; height: 14px; }
+    .injected-panel .panel-header .badge {
+      background: #1a1a1a;
+      color: #ffffff;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 10px;
+      font-weight: 600;
+    }
+    .injected-panel .list {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 8px;
+    }
+    .injected-panel .list::-webkit-scrollbar { width: 6px; }
+    .injected-panel .list::-webkit-scrollbar-track { background: transparent; }
+    .injected-panel .list::-webkit-scrollbar-thumb { background: #333333; border-radius: 3px; }
+    .injected-panel .empty {
+      padding: 24px 16px;
+      text-align: center;
+      font-size: 12px;
+      color: #666666;
+      line-height: 1.5;
+    }
+    .injected-panel .empty .hint { color: #b0b0b0; margin-top: 8px; font-weight: 500; }
+    .injected-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      margin-bottom: 6px;
+      background: #1a1a1a;
+      border-radius: 10px;
+      border: 1px solid #2a2a2a;
+      transition: background 0.25s ease, border-color 0.25s ease, transform 0.2s ease, opacity 0.25s ease;
+      animation: injectedItemIn 0.3s ease-out backwards;
+    }
+    @keyframes injectedItemIn {
+      from { opacity: 0; transform: translateX(8px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    .injected-item:hover { background: #222222; border-color: #444444; transform: translateX(2px); }
+    .injected-item .avatar-wrap {
+      flex-shrink: 0;
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #2a2a2a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .injected-item .avatar-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .injected-item .avatar-wrap .avatar-placeholder {
+      width: 100%;
+      height: 100%;
+      background: #333333;
+      border-radius: 10px;
+    }
+    .injected-item .avatar-wrap img { display: block; }
+    .injected-item .info {
+      min-width: 0;
+      flex: 1;
+    }
+    .injected-item .info .name {
+      font-size: 13px;
+      font-weight: 600;
+      color: #ffffff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .injected-item .info .sub {
+      font-size: 11px;
+      color: #888888;
+      margin-top: 2px;
+    }
+    .injected-item .info .sub:empty { display: none; }
+    .injected-item .info .sub .pid { font-family: 'JetBrains Mono', monospace; color: #b0b0b0; }
+    .status-bar {
+      flex-shrink: 0;
+      height: 30px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 11px;
+      color: #888888;
+      background: #000000;
+      border-top: 1px solid #2a2a2a;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .status-bar .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #555555;
+      margin-right: 2px;
+    }
+    .status-bar.connected .dot { background: #ffffff; box-shadow: 0 0 6px rgba(255,255,255,0.4); }
+    .status-bar .injected-user {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-left: auto;
+      color: #b0b0b0;
+    }
+    .status-bar .injected-user .avatar {
+      width: 20px;
+      height: 20px;
+      border-radius: 6px;
+      object-fit: cover;
+      background: #2a2a2a;
+    }
+    .status-bar .injected-user .name { color: #ffffff; font-weight: 500; }
+    .status-bar .injected-user:empty { display: none; }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs/loader.js"></script>
+</head>
+<body>
+  <div class="title-bar">
+    <div class="title">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 4v16 M5 4h14 M5 12h10 M5 20h14"/>
+      </svg>
+      Einstenium-v1.1.1
+    </div>
+    <div class="win-btns">
+      <button type="button" id="btn-minimize" title="Minimize">
+        <svg viewBox="0 0 12 12"><rect x="0" y="5" width="12" height="2" fill="currentColor"/></svg>
+      </button>
+      <button type="button" id="btn-maximize" title="Maximize">
+        <svg viewBox="0 0 12 12"><rect x="0" y="0" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+      </button>
+      <button type="button" id="btn-close" class="close" title="Close">
+        <svg viewBox="0 0 12 12"><path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="main-row">
+    <aside class="scripts-panel">
+      <div class="panel-header">Scripts</div>
+      <div class="list" id="scripts-list">
+        <button type="button" class="script-preset-btn" data-script="infinite-yield" title="Load Infinite Yield">Infinite Yield</button>
+        <button type="button" class="script-preset-btn" data-script="orca" title="Load Orca">Orca</button>
+        <button type="button" class="script-preset-btn" data-script="universal-esp" title="Load Universal ESP">Universal ESP</button>
+        <button type="button" class="script-preset-btn" data-script="universal-aimbot" title="Load Universal Aimbot">Universal Aimbot</button>
+      </div>
+      <div class="scripts-footer">
+        <button type="button" class="btn-updates" id="btn-updates" title="View updates">Updates</button>
+      </div>
+    </aside>
+    <div id="updates-modal" class="updates-modal">
+      <div class="updates-content">
+        <div class="header">Updates <button type="button" class="close" id="updates-close" title="Close" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+        <div class="body" id="updates-body">Loading...</div>
+      </div>
+    </div>
+    <div class="content-col">
+      <div class="toolbar">
+        <button class="btn primary" id="btn-attach" title="Attach to Roblox">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        </button>
+        <button class="btn" id="btn-execute" title="Execute script">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        </button>
+        <span class="sep"></span>
+        <button class="btn" id="btn-console" title="Console">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+        </button>
+        <span class="sep"></span>
+        <button class="btn" id="btn-clear" title="Clear editor">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        </button>
+        <button class="btn" id="btn-kill" title="Kill Roblox">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+        </button>
+        <span class="sep"></span>
+        <button class="btn" id="btn-save" title="Save script">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        </button>
+        <button class="btn" id="btn-open" title="Open file">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        </button>
+      </div>
+      <div class="editor-tabs" id="editor-tabs">
+        <button type="button" class="editor-tab active" data-tab="0"><span class="editor-tab-label">Script 1</span><span class="editor-tab-close" title="Close tab">&times;</span></button>
+        <button type="button" class="editor-tab-add" id="editor-tab-add" title="New script">+</button>
+      </div>
+      <div class="editor-wrap">
+        <div id="editor"></div>
+      </div>
+    </div>
+    <aside class="injected-panel">
+      <div class="panel-header">
+        Injected
+        <span class="badge" id="injected-count">0</span>
+        <button type="button" class="btn-refresh" id="btn-refresh-targets" title="Refresh targets (re-query player info)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        </button>
+      </div>
+      <div class="list" id="injected-list">
+        <div class="empty" id="injected-empty">
+          No targets.<br><span class="hint">Click Attach to inject</span>
+        </div>
+      </div>
+    </aside>
+  </div>
+  <div class="status-bar" id="status-bar">
+    <span class="dot"></span>
+    <span id="status-text">Inactive</span>
+    <div class="injected-user" id="injected-user"></div>
+  </div>
+
+  <script>
+    (function() {
+      const statusText = document.getElementById('status-text');
+      const statusBar = document.getElementById('status-bar');
+      const injectedUserEl = document.getElementById('injected-user');
+      const injectedListEl = document.getElementById('injected-list');
+      const injectedEmptyEl = document.getElementById('injected-empty');
+      const injectedCountEl = document.getElementById('injected-count');
+
+      window.__appendLog = function() { /* logs go to console window */ };
+      window.__setStatus = function(text) {
+        statusText.textContent = text || 'Inactive';
+        statusBar.classList.toggle('connected', text && text.indexOf('Connected') === 0);
+      };
+      window.__setScriptContent = function(text) {
+        if (window.__editorTabs && window.__currentTabIndex >= 0) {
+          window.__editorTabs[window.__currentTabIndex].content = text || '';
+        }
+        if (window.__monacoEditor) window.__monacoEditor.setValue(text || '');
+      };
+      window.__setTabTitle = function(title) {
+        document.title = (title ? title + ' - ' : '') + 'Einstenium-v1.1.1';
+      };
+      window.__setInjectedUser = function(data) {
+        if (!data || data.userId == null) {
+          injectedUserEl.innerHTML = '';
+          return;
+        }
+        var userId = String(data.userId);
+        var displayName = data.displayName || data.name || 'User';
+        var name = data.name || '';
+        var label = displayName !== name && name ? displayName + ' (@' + name + ')' : displayName;
+        injectedUserEl.innerHTML = '<img class="avatar" alt="" style="display:none"><span class="name">' + escapeHtml(label) + '</span>';
+        var img = injectedUserEl.querySelector('.avatar');
+        fetch('https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=' + userId + '&size=48x48&format=Png')
+          .then(function(r) { return r.json(); })
+          .then(function(d) {
+            if (d && d.data && d.data[0] && d.data[0].imageUrl) {
+              img.src = d.data[0].imageUrl;
+              img.style.display = '';
+            }
+          })
+          .catch(function() {});
+      };
+      window.__setAvatarUrl = function(userId, url) {
+        if (!url) return;
+        var id = String(userId);
+        var items = document.querySelectorAll('.injected-item[data-user-id]');
+        var el = null;
+        for (var i = 0; i < items.length; i++) {
+          if (items[i].getAttribute('data-user-id') === id) { el = items[i]; break; }
+        }
+        if (!el) return;
+        var wrap = el.querySelector('.avatar-wrap');
+        if (!wrap) return;
+        var img = wrap.querySelector('img');
+        var place = wrap.querySelector('.avatar-placeholder');
+        if (img) {
+          img.onload = function() {
+            img.style.display = 'block';
+            if (place) place.style.display = 'none';
+          };
+          img.onerror = function() { img.style.display = 'none'; };
+          img.src = url;
+        }
+      };
+      window.__setInjectedList = function(arr) {
+        if (!Array.isArray(arr)) arr = [];
+        injectedCountEl.textContent = String(arr.length);
+        injectedEmptyEl.style.display = arr.length ? 'none' : 'block';
+        var fragment = document.createDocumentFragment();
+        arr.forEach(function(entry, i) {
+          var displayName = entry.displayName || entry.name || '';
+          var name = entry.name || '';
+          var hasUser = !!(displayName || name);
+          var label = hasUser ? (displayName !== name && name ? displayName + ' (@' + name + ')' : (displayName || name)) : 'Loading...';
+          var sub = '';
+          var userId = entry.userId != null ? String(entry.userId) : '';
+          var div = document.createElement('div');
+          div.className = 'injected-item';
+          if (userId) div.setAttribute('data-user-id', userId);
+          div.style.animationDelay = (i * 0.04) + 's';
+          div.innerHTML = '<div class="avatar-wrap"><span class="avatar-placeholder"></span></div><div class="info"><div class="name">' + escapeHtml(label) + '</div><div class="sub">' + escapeHtml(sub) + '</div></div>';
+          var avatarWrap = div.querySelector('.avatar-wrap');
+          var placeholder = avatarWrap.querySelector('.avatar-placeholder');
+          if (userId) {
+            var img = document.createElement('img');
+            img.alt = '';
+            img.style.display = 'none';
+            avatarWrap.insertBefore(img, avatarWrap.firstChild);
+            if (window.chrome && window.chrome.webview) {
+              window.chrome.webview.postMessage(JSON.stringify({ action: 'getAvatarUrl', data: userId }));
+            }
+          }
+          fragment.appendChild(div);
+        });
+        injectedListEl.querySelectorAll('.injected-item').forEach(function(el) { el.remove(); });
+        injectedListEl.appendChild(fragment);
+      };
+
+      function escapeHtml(s) {
+        var div = document.createElement('div');
+        div.textContent = s;
+        return div.innerHTML;
+      }
+
+      function send(action, data) {
+        if (window.chrome && window.chrome.webview) {
+          window.chrome.webview.postMessage(JSON.stringify({ action: action, data: data || null }));
+        }
+      }
+
+      /* Drag window from title bar: WebView2 consumes hit-test, so we tell host to start move */
+      var titleBar = document.querySelector('.title-bar');
+      var titleBarTitle = document.querySelector('.title-bar .title');
+      if (titleBar && titleBarTitle) {
+        titleBar.addEventListener('mousedown', function(e) {
+          if (e.button !== 0) return;
+          if (e.target.closest('.win-btns')) return;
+          send('windowBeginMove');
+        });
+      }
+
+      document.getElementById('btn-console').addEventListener('click', function() { send('openConsole'); });
+      document.getElementById('btn-minimize').addEventListener('click', function() { send('windowMinimize'); });
+      document.getElementById('btn-maximize').addEventListener('click', function() { send('windowMaximize'); });
+      document.getElementById('btn-close').addEventListener('click', function() { send('windowClose'); });
+      document.getElementById('btn-attach').addEventListener('click', function() { send('inject'); });
+      document.getElementById('btn-execute').addEventListener('click', function() {
+        var content = window.__monacoEditor ? window.__monacoEditor.getValue() : '';
+        send('execute', content);
+      });
+
+      var PRESET_SCRIPTS = {
+        'infinite-yield': "loadstring(game:HttpGet('https://raw.githubusercontent.com/DarkNetworks/Infinite-Yield/main/latest.lua'))()",
+        'orca': 'loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/richie0866/orca/master/public/latest.lua"))()',
+        'universal-esp': 'loadstring(game:HttpGet("https://pastebin.com/raw/WJ23pmjY"))()',
+        'universal-aimbot': 'loadstring(game:HttpGet("https://raw.githubusercontent.com/ReWelp/ChairHub./refs/heads/main/universalaimbot.lua", true))()'
+      };
+      document.querySelectorAll('.script-preset-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var key = btn.getAttribute('data-script');
+          var script = key && PRESET_SCRIPTS[key];
+          if (script) send('execute', script);
+        });
+      });
+
+      document.getElementById('btn-clear').addEventListener('click', function() { send('clear'); });
+      document.getElementById('btn-kill').addEventListener('click', function() { send('kill'); });
+      document.getElementById('btn-save').addEventListener('click', function() {
+        var content = window.__monacoEditor ? window.__monacoEditor.getValue() : '';
+        send('save', content);
+      });
+      document.getElementById('btn-open').addEventListener('click', function() { send('open'); });
+      document.getElementById('btn-refresh-targets').addEventListener('click', function() { send('refreshInjectedList'); });
+
+      /* Editor tabs */
+      window.__editorTabs = [{ name: 'Script 1', content: '' }];
+      window.__currentTabIndex = 0;
+      function saveCurrentTabContent() {
+        if (!window.__monacoEditor || window.__currentTabIndex < 0 || !window.__editorTabs[window.__currentTabIndex]) return;
+        window.__editorTabs[window.__currentTabIndex].content = window.__monacoEditor.getValue();
+      }
+      function switchTab(index) {
+        if (index === window.__currentTabIndex) return;
+        saveCurrentTabContent();
+        window.__currentTabIndex = index;
+        if (window.__monacoEditor) window.__monacoEditor.setValue(window.__editorTabs[index].content || '');
+        document.querySelectorAll('.editor-tab[data-tab]').forEach(function(btn, i) {
+          btn.classList.toggle('active', i === index);
+          var label = btn.querySelector('.editor-tab-label');
+          if (label) label.textContent = window.__editorTabs[i].name;
+        });
+      }
+      function renderTabs() {
+        var container = document.getElementById('editor-tabs');
+        var addBtn = document.getElementById('editor-tab-add');
+        var existing = container.querySelectorAll('.editor-tab[data-tab]');
+        existing.forEach(function(el) { el.remove(); });
+        window.__editorTabs.forEach(function(tab, i) {
+          var tabEl = document.createElement('button');
+          tabEl.type = 'button';
+          tabEl.className = 'editor-tab' + (i === window.__currentTabIndex ? ' active' : '');
+          tabEl.setAttribute('data-tab', String(i));
+          tabEl.innerHTML = '<span class="editor-tab-label">' + escapeHtml(tab.name) + '</span><span class="editor-tab-close" title="Close tab">&times;</span>';
+          container.insertBefore(tabEl, addBtn);
+        });
+        if (window.__monacoEditor) window.__monacoEditor.setValue(window.__editorTabs[window.__currentTabIndex].content || '');
+      }
+      function closeTab(index) {
+        if (window.__editorTabs.length <= 1) return;
+        saveCurrentTabContent();
+        window.__editorTabs.splice(index, 1);
+        if (window.__currentTabIndex >= window.__editorTabs.length) window.__currentTabIndex = window.__editorTabs.length - 1;
+        else if (index < window.__currentTabIndex) window.__currentTabIndex--;
+        renderTabs();
+      }
+      function addTab() {
+        var n = window.__editorTabs.length + 1;
+        window.__editorTabs.push({ name: 'Script ' + n, content: '' });
+        window.__currentTabIndex = window.__editorTabs.length - 1;
+        renderTabs();
+      }
+      document.getElementById('editor-tabs').addEventListener('click', function(e) {
+        var closeBtn = e.target.closest('.editor-tab-close');
+        if (closeBtn) {
+          var tabBtn = e.target.closest('.editor-tab[data-tab]');
+          if (tabBtn) closeTab(parseInt(tabBtn.getAttribute('data-tab'), 10));
+          e.stopPropagation();
+          return;
+        }
+        var tabBtn = e.target.closest('.editor-tab[data-tab]');
+        if (tabBtn) switchTab(parseInt(tabBtn.getAttribute('data-tab'), 10));
+      });
+      document.getElementById('editor-tab-add').addEventListener('click', addTab);
+
+      /* Updates modal – relative / current info */
+      var UPDATES_TEXT = 'Einstenium-v1.1.1 – Latest\n\n' +
+        '• Get executor name and version in your script:\n\n' +
+        '  local name, version = identifyexecutor()\n' +
+        '  print(name .. " " .. version)  -- Einstenium 1.1.1\n\n' +
+        '• identifyexecutor() also prints the name to Roblox\'s console (F9 / Developer Console).\n' +
+        '• Scripts: Infinite Yield, Orca, Universal ESP, Universal Aimbot. Same-size buttons.\n' +
+        '• Editor tabs: add with +, close with ×. At least one tab always open.\n' +
+        '• Updates button matches script buttons; modal has X to close.\n';
+      document.getElementById('updates-body').textContent = UPDATES_TEXT;
+      document.getElementById('btn-updates').addEventListener('click', function() {
+        document.getElementById('updates-modal').classList.add('visible');
+      });
+      document.getElementById('updates-close').addEventListener('click', function() {
+        document.getElementById('updates-modal').classList.remove('visible');
+      });
+      document.getElementById('updates-modal').addEventListener('click', function(e) {
+        if (e.target === this) this.classList.remove('visible');
+      });
+
+      require.config({
+        paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs' },
+        'vs/nls': { availableLanguages: {} }
+      });
+      require(['vs/editor/editor.main'], function() {
+        monaco.editor.defineTheme('einstenium-luau', {
+          base: 'vs-dark',
+          inherit: true,
+          rules: [
+            { token: 'keyword', foreground: '569CD6' },
+            { token: 'keyword.control', foreground: 'C586C0' },
+            { token: 'keyword.other', foreground: '569CD6' },
+            { token: 'keyword.operator', foreground: 'D4D4D4' },
+            { token: 'storage.modifier', foreground: '569CD6' },
+            { token: 'constant.language', foreground: '569CD6' },
+            { token: 'support.type', foreground: '4EC9B0' },
+            { token: 'variable.language', foreground: '569CD6' },
+            { token: 'string', foreground: 'CE9178' },
+            { token: 'string.escape', foreground: 'D7BA7D' },
+            { token: 'number', foreground: 'B5CEA8' },
+            { token: 'number.hex', foreground: 'B5CEA8' },
+            { token: 'comment', foreground: '6A9955', fontStyle: 'italic' },
+            { token: 'identifier.function', foreground: 'DCDCAA' },
+            { token: 'support.function', foreground: '4EC9B0' },
+            { token: 'variable', foreground: '9CDCFE' },
+            { token: 'entity.name.function', foreground: 'DCDCAA' },
+            { token: 'entity.name.type', foreground: '4EC9B0' },
+            { token: 'delimiter', foreground: 'D4D4D4' },
+            { token: 'delimiter.curly', foreground: 'D4D4D4' },
+            { token: 'delimiter.square', foreground: 'D4D4D4' },
+            { token: 'delimiter.parenth', foreground: 'D4D4D4' },
+            { token: 'tag', foreground: '569CD6' }
+          ],
+          colors: {
+            'editor.background': '#1e1e1e',
+            'editor.foreground': '#d4d4d4'
+          }
+        });
+        window.__monacoEditor = monaco.editor.create(document.getElementById('editor'), {
+          value: '',
+          language: 'lua',
+          theme: 'einstenium-luau',
+          automaticLayout: true,
+          fontSize: 13,
+          fontFamily: "'JetBrains Mono', 'Cascadia Code', Consolas, monospace",
+          minimap: { enabled: false },
+          scrollBeyondLastLine: false,
+          padding: { top: 10 },
+          lineNumbers: 'on',
+          roundedSelection: true,
+          renderLineHighlight: 'line',
+          scrollbar: { verticalScrollbarSize: 8, horizontalScrollbarSize: 8 }
+        });
+        (function() {
+          var builtins = {
+            'print': 'print(...)',
+            'warn': 'warn(...)',
+            'error': 'error(message)',
+            'assert': 'assert(condition, message?)',
+            'type': 'type(value)',
+            'tostring': 'tostring(value)',
+            'tonumber': 'tonumber(value, base?)',
+            'pairs': 'pairs(t)',
+            'ipairs': 'ipairs(t)',
+            'next': 'next(t, index?)',
+            'select': 'select(index, ...)',
+            'pcall': 'pcall(f, ...)',
+            'xpcall': 'xpcall(f, errHandler)',
+            'getfenv': 'getfenv(level?)',
+            'setfenv': 'setfenv(f, t)',
+            'rawequal': 'rawequal(v1, v2)',
+            'rawget': 'rawget(t, k)',
+            'rawset': 'rawset(t, k, v)',
+            'unpack': 'unpack(t, i?, j?)',
+            'GetService': 'game:GetService(className: string)',
+            'Wait': 'instance:Wait() / task.wait(seconds?)',
+            'FindFirstChild': 'instance:FindFirstChild(name: string, recursive?)',
+            'FindFirstChildWhichIsA': 'instance:FindFirstChildWhichIsA(className: string, recursive?)',
+            'Clone': 'instance:Clone()',
+            'Destroy': 'instance:Destroy()',
+            'Connect': 'signal:Connect(callback)',
+            'new': 'Instance.new(className: string)',
+            'WaitForChild': 'instance:WaitForChild(name: string, timeout?)',
+            'GetChildren': 'instance:GetChildren()',
+            'GetDescendants': 'instance:GetDescendants()',
+            'IsA': 'instance:IsA(className: string)',
+            'task.wait': 'task.wait(seconds?)',
+            'task.spawn': 'task.spawn(callback)',
+            'task.defer': 'task.defer(callback)',
+            'identifyexecutor': 'identifyexecutor() -> (string name, string version)\nPrints executor name to Roblox console (F9). Returns executor name and version.\n\nExample:\nlocal name, version = identifyexecutor()\nprint(name .. " " .. version)  -- Einstenium 1.1.1',
+            'getexecutorname': 'getexecutorname() -> (string name, string version)\nSame as identifyexecutor().\n\nExample:\nlocal name, version = getexecutorname()\nprint(name, version)  -- Einstenium 1.1.1',
+            'getexecutorlevel': 'getexecutorlevel() -> number\nReturns 8 (level 8 executor).',
+            'getgenv': 'getgenv() -> table\nReturns the executor\'s global environment.',
+            'getrenv': 'getrenv() -> table\nReturns the real Roblox environment (read-only view).',
+            'getthreadidentity': 'getthreadidentity() -> number\nReturns current thread identity (e.g. 8).',
+            'setthreadidentity': 'setthreadidentity(identity: number)\nSets the thread identity.',
+            'getidentity': 'getidentity() -> number\nSame as getthreadidentity().',
+            'setidentity': 'setidentity(identity: number)\nSame as setthreadidentity().',
+            'getthreadcontext': 'getthreadcontext() -> number\nSame as getthreadidentity().',
+            'setthreadcontext': 'setthreadcontext(identity: number)\nSame as setthreadidentity().',
+            'request': 'request(options: { Url: string, Method: string, Headers?: table, Body?: string, Cookies?: table }) -> (table response, string? error)\nHTTP request. Method: GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS.',
+            'http_request': 'http_request(options) -> (table, string?)\nSame as request().',
+            'setclipboard': 'setclipboard(text: string)\nSets the system clipboard.',
+            'getclipboard': 'getclipboard() -> string\nGets the system clipboard.',
+            'toclipboard': 'toclipboard(text: string)\nSame as setclipboard().',
+            'setrbxclipboard': 'setrbxclipboard(text: string)\nSame as setclipboard().',
+            'getrbxclipboard': 'getrbxclipboard() -> string\nSame as getclipboard().'
+          };
+          function findFunctionInModel(model, name) {
+            var escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            var patterns = [
+              new RegExp('\\blocal\\s+function\\s+' + escaped + '\\s*\\(([^)]*)\\)'),
+              new RegExp('\\bfunction\\s+' + escaped + '\\s*\\(([^)]*)\\)'),
+              new RegExp('\\b' + escaped + '\\s*=\\s*function\\s*\\(([^)]*)\\)')
+            ];
+            var lineCount = model.getLineCount();
+            for (var i = 1; i <= lineCount; i++) {
+              var line = model.getLineContent(i);
+              for (var p = 0; p < patterns.length; p++) {
+                var m = line.match(patterns[p]);
+                if (m) return (name + '(' + (m[1] || '').trim() + ')');
+              }
+            }
+            return null;
+          }
+          monaco.languages.registerHoverProvider('lua', {
+            provideHover: function(model, position) {
+              var word = model.getWordAtPosition(position);
+              if (!word) return null;
+              var name = word.word;
+              var sig = builtins[name] || findFunctionInModel(model, name);
+              if (!sig) return null;
+              var parts = sig.split('\n');
+              var code = parts[0];
+              var desc = parts.length > 1 ? '\n\n' + parts.slice(1).join('\n') : '';
+              return { contents: [{ value: '```lua\n' + code + '\n```' + desc }] };
+            }
+          });
+        })();
+        if (window.chrome && window.chrome.webview) {
+          window.chrome.webview.addEventListener('message', function(e) {
+            try {
+              var msg = JSON.parse(e.data);
+              if (msg.action === 'appendLog' && msg.data != null) window.__appendLog(msg.data);
+              else if (msg.action === 'setStatus' && msg.data != null) window.__setStatus(msg.data);
+              else if (msg.action === 'setContent' && msg.data != null) window.__setScriptContent(msg.data);
+              else if (msg.action === 'setTabTitle' && msg.data != null) window.__setTabTitle(msg.data);
+              else if (msg.action === 'setInjectedUser' && msg.data != null) window.__setInjectedUser(msg.data);
+              else if (msg.action === 'setInjectedList' && msg.data != null) window.__setInjectedList(msg.data);
+            } catch (err) {}
+          });
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
